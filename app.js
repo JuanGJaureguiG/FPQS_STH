@@ -13,7 +13,7 @@
   const pf1 = new Intl.NumberFormat('es-CO',{minimumFractionDigits:1,maximumFractionDigits:1});
 
   let D, ROWS, MONTHS, YEARS, CORTE, PARTIAL_KEY = null;
-  const S = { years:new Set(), sems:new Set(), months:new Set(), tipos:new Set(), procs:new Set(), estados:new Set() };
+  const S = { years:new Set(), months:new Set(), tipos:new Set(), procs:new Set(), estados:new Set() };
   const charts = {};
   let tblSort = { key:'total', dir:-1 }, tblAll = false;
 
@@ -71,7 +71,7 @@
     ROWS = D.rows.map(r => {
       const [y,m,d] = r[0].split('-').map(Number);
       const dt = new Date(y, m-1, d);
-      return { f:r[0], y, m, mk:mkey(y,m), sem: m <= 6 ? 1 : 2, dow:(dt.getDay()+6)%7, h:r[1], t:r[2], c:r[3], p:D.categorias[r[3]][1], e:r[4] };
+      return { f:r[0], y, m, mk:mkey(y,m), dow:(dt.getDay()+6)%7, h:r[1], t:r[2], c:r[3], p:D.categorias[r[3]][1], e:r[4] };
     });
     // Meses continuos desde el primer radicado hasta el corte
     const [y0,m0] = D.desde.split('-').map(Number), [y1,m1,d1] = D.corte.split('-').map(Number);
@@ -90,7 +90,7 @@
   }
 
   function resetState() {
-    S.years.clear(); S.sems.clear(); S.months.clear();
+    S.years.clear(); S.months.clear();
     S.tipos = new Set(D.tipos.map((_,i)=>i));
     S.procs = new Set(D.procesos.map((_,i)=>i));
     S.estados = new Set(D.estados.map((_,i)=>i));
@@ -98,8 +98,8 @@
 
   /* ---------- Filtros ---------- */
   const monthsInScope = () => MONTHS.filter(k => {
-    const y = +k.slice(0,4), m = +k.slice(5), s = m <= 6 ? 1 : 2;
-    return (!S.years.size || S.years.has(y)) && (!S.sems.size || S.sems.has(s));
+    const y = +k.slice(0,4);
+    return !S.years.size || S.years.has(y);
   });
   const selMonths = () => { const sc = monthsInScope(); return S.months.size ? sc.filter(k => S.months.has(k)) : sc; };
 
@@ -115,8 +115,7 @@
     const g = [];
     let per = '';
     if (YEARS.length > 1) per += `<div class="fhint" style="margin:0 0 6px">Año</div><div class="chips">${YEARS.map(y=>`<button class="chip ${S.years.has(y)?'on':''}" data-f="years" data-v="${y}">${y}</button>`).join('')}</div>`;
-    per += `<div class="fhint" style="margin:${YEARS.length>1?'12px':'0'} 0 6px">Semestre</div><div class="chips">${[1,2].map(s=>`<button class="chip ${S.sems.has(s)?'on':''}" data-f="sems" data-v="${s}">Semestre ${s}</button>`).join('')}</div>`;
-    per += `<div class="fhint" style="margin:12px 0 6px">Mes</div><div class="chips">${monthsInScope().map(k=>`<button class="chip ${S.months.has(k)?'on':''}" data-f="months" data-v="${k}">${mlabel(k)}${k===PARTIAL_KEY?'*':''}</button>`).join('')}</div>`;
+    per += `<div class="fhint" style="margin:${YEARS.length>1?'12px':'0'} 0 6px">Mes</div><div class="chips">${monthsInScope().map(k=>`<button class="chip ${S.months.has(k)?'on':''}" data-f="months" data-v="${k}">${mlabel(k)}${k===PARTIAL_KEY?'*':''}</button>`).join('')}</div>`;
     per += `<div class="fhint">Sin selección se incluyen todos los meses.${PARTIAL_KEY?' * Mes con corte parcial.':''}</div>`;
     g.push(group('Periodo', per));
     g.push(group('Tipo de radicado', D.tipos.map((t,i)=>check('tipos',i,t,cnt('t',i),colorTipo(t,i))).join('')));
