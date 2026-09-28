@@ -1,0 +1,14 @@
+# Tablero FPQS · CONECTA — UNIMINUTO Sede Tolima-Huila
+
+Felicitaciones, peticiones, quejas y sugerencias radicadas en CONECTA.
+
+## Actualización mensual (último día de cada mes)
+1. Descarga la base de CONECTA y guárdala como `Conecta.xlsx` en la carpeta del tablero
+   (columnas: Título, Estado, Fecha de apertura, Año, Mes, Categoría).
+2. Ejecuta: `python build_data.py Conecta.xlsx`
+3. En GitHub: **Add file → Upload files** y sube solo el nuevo `data.json` (reemplaza al anterior).
+
+Si el script avisa "Categorías sin proceso asignado", CONECTA trajo una categoría nueva:
+agrégala a las reglas `PROCESOS` (o a `OVERRIDE`) en `build_data.py` y vuelve a ejecutarlo.
+
+No subas `Conecta.xlsx` al repositorio; `data.json` no contiene datos personales.

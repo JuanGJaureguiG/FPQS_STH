@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FPQS · CONECTA — UNIMINUTO Sede Tolima-Huila</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="scrim" onclick="document.body.classList.remove('nav-open')"></div>
+
+<aside class="sidebar" aria-label="Filtros">
+  <div class="brand">
+    <div class="org">UNIMINUTO · Sede Tolima-Huila</div>
+    <div class="name">Tablero FPQS<small>Felicitaciones, peticiones, quejas y sugerencias radicadas en CONECTA</small></div>
+  </div>
+  <div class="filters" id="filters"></div>
+  <div class="side-foot">
+    <button class="btn-reset" id="btnReset">Limpiar filtros</button>
+    <p id="sideInfo"></p>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar"><span>Tablero FPQS</span><button onclick="document.body.classList.add('nav-open')">Filtros</button></div>
+
+  <section class="hero">
+    <div>
+      <h1>La voz de estudiantes y usuarios</h1>
+      <p>Radicados de felicitaciones, peticiones, quejas y sugerencias en CONECTA, actualizados con el corte de cada fin de mes.</p>
+    </div>
+    <div class="cut" id="cutInfo"></div>
+
+    <div class="balance">
+      <div class="balance-head">
+        <h2>Composición de los radicados</h2>
+        <span id="balanceNote"></span>
+      </div>
+      <div class="bbar" id="bbar" role="img" aria-label="Distribución por tipo de radicado"></div>
+      <div class="blegend" id="blegend"></div>
+    </div>
+  </section>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="grid g-3-2">
+    <div class="card">
+      <h3>Radicados por mes</h3>
+      <div class="sub">Cantidad mensual según el tipo de radicado</div>
+      <div class="chart-box"><canvas id="chMonthly"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Quejas y felicitaciones por cada 100 radicados</h3>
+      <div class="sub">Muestra si el balance de la experiencia mejora o empeora mes a mes</div>
+      <div class="chart-box"><canvas id="chRates"></canvas></div>
+    </div>
+  </section>
+
+  <section class="grid g-1-1">
+    <div class="card">
+      <h3>Radicados por proceso</h3>
+      <div class="sub">Categorías de CONECTA agrupadas por el proceso que las atiende</div>
+      <div class="chart-box tall"><canvas id="chProc"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Dónde se concentran las quejas</h3>
+      <div class="sub">Las 10 categorías con más quejas en la selección actual</div>
+      <div class="chart-box tall"><canvas id="chQuejas"></canvas></div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-bottom:18px">
+    <h3>Cuándo llegan los radicados</h3>
+    <div class="sub">Radicados según día de la semana y hora de apertura</div>
+    <div class="heat-wrap"><div class="heat" id="heat"></div></div>
+    <div class="heat-foot">
+      <div class="insight" id="heatInsight"></div>
+      <div class="heat-scale" id="heatScale"></div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-bottom:18px">
+    <div class="tbl-tools">
+      <div>
+        <h3>Detalle por categoría</h3>
+        <div class="sub" style="margin-bottom:0">Haz clic en un encabezado para ordenar</div>
+      </div>
+      <input class="search" id="search" type="search" placeholder="Buscar categoría o proceso" aria-label="Buscar categoría">
+    </div>
+    <div class="tbl-wrap"><table id="tbl"></table></div>
+    <button class="more" id="btnMore"></button>
+  </section>
+
+  <section class="card note">
+    <h3>Cómo leer este tablero</h3>
+    <p>Fuente: exportación de CONECTA de la Sede Tolima-Huila. La base se descarga el último día de cada mes; si el mes más reciente aún no ha cerrado, sus cifras son parciales y así se indica en el corte.</p>
+    <p>Los procesos son una agrupación de las categorías de CONECTA hecha para este tablero (por ejemplo, “Certificado de estudio” y “Sabana de notas” se agrupan en Certificados y documentos). Los radicados cuya categoría es simplemente “Felicitación”, “Queja” o “Sugerencia” se muestran como Sin categoría específica.</p>
+    <p>La variación mensual compara el último mes de la selección con el mes anterior. El tablero no contiene datos personales: solo tipo, estado, categoría y fecha de apertura de cada radicado.</p>
+  </section>
+
+  <footer id="footer"></footer>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
