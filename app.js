@@ -147,7 +147,7 @@
   function header() {
     const d = CORTE;
     const corteTxt = `${d.getDate()} de ${MESES_L[d.getMonth()]} de ${d.getFullYear()}`;
-    document.getElementById('cutInfo').innerHTML = `Último radicado incluido<strong>${corteTxt}</strong>${PARTIAL_KEY?`<span class="partial">${cap(mlong(PARTIAL_KEY))} aún no cierra: cifras parciales</span>`:''}`;
+    document.getElementById('cutInfo').innerHTML = `Información con corte al<strong>${corteTxt}</strong>${PARTIAL_KEY?`<span class="partial">${cap(mlong(PARTIAL_KEY))} aún no cierra: cifras parciales</span>`:''}`;
     document.getElementById('sideInfo').textContent = `Fuente: ${D.fuente}. Datos generados el ${D.generado}.`;
     document.getElementById('footer').textContent = `Tablero FPQS · UNIMINUTO Sede Tolima-Huila · ${nf.format(D.rows.length)} radicados desde ${mlong(D.desde.slice(0,7))} hasta el corte.`;
   }

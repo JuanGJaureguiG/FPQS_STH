@@ -5,15 +5,22 @@ Genera data.json a partir de la exportación mensual de CONECTA.
 
 Uso:
     python build_data.py Conecta.xlsx
+    python build_data.py Conecta.xlsx 2026-10-15   (corte distinto al fin de mes)
     (sin argumento busca "Conecta.xlsx" en la misma carpeta)
 
+Corte: como la base se descarga el último día de cada mes, por defecto el
+corte es el último día del mes del radicado más reciente (p. ej. 30 de
+septiembre). Si se descarga a mitad de mes, indique la fecha de corte como
+segundo argumento y el tablero marcará ese mes como parcial.
+
 Columnas esperadas en el Excel:
-    Título | Estado | Fecha de apertura | Año | Mes | Categoría
+    Tipo de radicado (o Título) | Estado | Fecha de apertura | Año | Mes | Categoría
+La fecha puede venir como fecha de Excel o como número de serie de Excel.
 
 El JSON resultante NO contiene identificadores personales: solo tipo,
 estado, fecha/hora de apertura y categoría de cada radicado.
 """
-import json, sys, unicodedata, re
+import json, sys, unicodedata, re, calendar
 from datetime import datetime
 from pathlib import Path
 import pandas as pd
@@ -53,7 +60,7 @@ PROCESOS = [
     ("Prácticas, empleo y proyección", [r"practica", r"empleo", r"emprendimiento", r"convenio", r"alianza",
                                         r"servicio social", r"internacionalizacion", r"pastoral",
                                         r"cultural", r"evento", r"bienestar"]),
-    ("Atención e información", [r"informacion", r"contact center", r"quiero estudiar", r"datos",
+    ("Atención e información", [r"informacion", r"contact center", r"atencion en rectoria", r"salas de atencion", r"quiero estudiar", r"datos",
                                 r"proveedor", r"planta fisica", r"servicios tercerizados"]),
 ]
 
@@ -69,6 +76,15 @@ OVERRIDE = {
 }
 
 
+def fecha_excel(v):
+    """Convierte fechas de Excel, números de serie (p. ej. 46288,418) o texto."""
+    if pd.isna(v):
+        return pd.NaT
+    if isinstance(v, (int, float)):
+        return (pd.Timestamp("1899-12-30") + pd.to_timedelta(float(v), unit="D")).round("min")
+    return pd.to_datetime(v, dayfirst=True, errors="coerce")
+
+
 def proceso_de(cat: str) -> str:
     n = norm(cat)
     if n in OVERRIDE:
@@ -81,9 +97,14 @@ def proceso_de(cat: str) -> str:
 
 def main():
     df = pd.read_excel(SRC)
-    df.columns = [c.strip() for c in df.columns]
+    df.columns = [str(c).strip() for c in df.columns]
+    # La columna del tipo cambió de nombre en CONECTA ("Título" -> "Tipo de radicado")
+    for alt in ("Tipo de radicado", "Tipo", "Titulo"):
+        if alt in df.columns and "Título" not in df.columns:
+            df = df.rename(columns={alt: "Título"})
     df = df.dropna(subset=["Título", "Fecha de apertura"])
-    df["Fecha de apertura"] = pd.to_datetime(df["Fecha de apertura"])
+    df["Fecha de apertura"] = df["Fecha de apertura"].map(fecha_excel)
+    df = df.dropna(subset=["Fecha de apertura"])
     df["Título"] = df["Título"].str.strip()
     df["Estado"] = df["Estado"].fillna("Sin estado").str.strip()
 
@@ -115,12 +136,17 @@ def main():
              ti[r["Título"]], ci[r["Categoría"]], ei[r["Estado"]]]
             for _, r in df.sort_values("Fecha de apertura").iterrows()]
 
-    corte = df["Fecha de apertura"].max()
+    ultimo = df["Fecha de apertura"].max()
+    if len(sys.argv) > 2:
+        corte = pd.Timestamp(sys.argv[2])
+    else:
+        corte = pd.Timestamp(ultimo.year, ultimo.month, calendar.monthrange(ultimo.year, ultimo.month)[1])
     data = {
         "fuente": "CONECTA — UNIMINUTO Sede Tolima-Huila",
         "generado": datetime.now().strftime("%Y-%m-%d %H:%M"),
         "desde": df["Fecha de apertura"].min().strftime("%Y-%m-%d"),
         "corte": corte.strftime("%Y-%m-%d"),
+        "ultimo": ultimo.strftime("%Y-%m-%d"),
         "tipos": tipos,
         "estados": estados,
         "procesos": procesos,
